@@ -1,15 +1,19 @@
 package org.formation.coffee.adapter.out.persistence;
 
-import jakarta.annotation.Nullable;
-import jakarta.persistence.*;
-
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import org.jspecify.annotations.Nullable;
 
 @Entity
 @Table(name = "review")
-public class ReviewJpaEntity {
+class ReviewJpaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,14 +29,14 @@ public class ReviewJpaEntity {
     private int rating;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "coffee_id", nullable = false)
     private CoffeeJpaEntity coffee;
 
     protected ReviewJpaEntity() {
-
+        // pour JPA
     }
 
-    @Nullable
-    public Long getId() {
+    public @Nullable Long getId() {
         return id;
     }
 
@@ -47,5 +51,4 @@ public class ReviewJpaEntity {
     public int getRating() {
         return rating;
     }
-
 }

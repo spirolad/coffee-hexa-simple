@@ -15,7 +15,6 @@ import org.formation.coffee.domain.model.CoffeeId;
 import org.formation.coffee.domain.model.Price;
 
 import java.util.List;
-import java.util.Objects;
 
 public class CoffeeApplicationService implements
         CreateCoffeeUseCase,
@@ -27,25 +26,28 @@ public class CoffeeApplicationService implements
     private final SaveCoffeePort saveCoffeePort;
     private final TransactionRunner transactionRunner;
 
-    public CoffeeApplicationService(LoadCoffeePort loadCoffeePort, SaveCoffeePort saveCoffeePort, TransactionRunner transactionRunner) {
+    public CoffeeApplicationService(LoadCoffeePort loadCoffeePort,
+                                  SaveCoffeePort saveCoffeePort,
+                                  TransactionRunner transactionRunner) {
         this.loadCoffeePort = loadCoffeePort;
         this.saveCoffeePort = saveCoffeePort;
         this.transactionRunner = transactionRunner;
     }
 
     @Override
-    public Coffee createCoffee(CreateCoffeeCommand command) {
-        return transactionRunner.execute(() -> saveCoffeePort.save(Coffee.create(command.name(), command.price())));
+    public List<Coffee> listCoffees() {
+        return transactionRunner.executeReadOnly(loadCoffeePort::findAll);
     }
 
     @Override
     public Coffee getCoffee(CoffeeId id) {
-        return transactionRunner.executeReadonly(() -> loadCoffee(id));
+        return transactionRunner.executeReadOnly(() -> loadCoffee(id));
     }
 
     @Override
-    public List<Coffee> listCoffees() {
-        return transactionRunner.executeReadonly(() -> loadCoffeePort.findAll());
+    public Coffee createCoffee(CreateCoffeeCommand command) {
+        return transactionRunner.execute(
+                () -> saveCoffeePort.save(Coffee.create(command.name(), command.price())));
     }
 
     @Override
@@ -64,8 +66,7 @@ public class CoffeeApplicationService implements
         });
     }
 
-    private Coffee loadCoffee(CoffeeId coffeeId) {
-        return loadCoffeePort.findById(coffeeId)
-                .orElseThrow(() -> new CoffeeNotFoundException(coffeeId));
+    private Coffee loadCoffee(CoffeeId id) {
+        return loadCoffeePort.findById(id).orElseThrow(() -> new CoffeeNotFoundException(id));
     }
 }

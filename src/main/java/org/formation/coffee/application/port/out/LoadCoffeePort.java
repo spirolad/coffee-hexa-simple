@@ -10,6 +10,5 @@ public interface LoadCoffeePort {
 
     List<Coffee> findAll();
 
-    Optional<Coffee> findById(CoffeeId coffeeId);
-
+    Optional<Coffee> findById(CoffeeId id);
 }

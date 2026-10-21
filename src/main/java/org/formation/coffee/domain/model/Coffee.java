@@ -1,21 +1,21 @@
 package org.formation.coffee.domain.model;
 
-import jakarta.annotation.Nullable;
 import org.formation.coffee.domain.exception.DomainValidationException;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 
 public final class Coffee {
 
-    public static final int MAX_COFFEE_NAME_LENGTH = 255;
+    public static final int MAX_NAME_LENGTH = 255;
 
     private final @Nullable CoffeeId id;
     private String name;
     private Price price;
     private final List<Review> reviews;
 
-    public Coffee(@Nullable CoffeeId id, String name, Price price, List<Review> reviews) {
+    private Coffee(@Nullable CoffeeId id, String name, Price price, List<Review> reviews) {
         this.id = id;
         this.name = requireValidName(name);
         this.price = Objects.requireNonNull(price, "price must not be null");
@@ -26,6 +26,9 @@ public final class Coffee {
         return new Coffee(null, name, price, List.of());
     }
 
+    /**
+     * Reconstruit un café qui existe déjà dans le stockage.
+     */
     public static Coffee reconstitute(CoffeeId id, String name, Price price, List<Review> reviews) {
         return new Coffee(id, name, price, reviews);
     }
@@ -35,21 +38,11 @@ public final class Coffee {
     }
 
     public void changePrice(Price newPrice) {
-        this.price = Objects.requireNonNull(newPrice, "newPrice must not be null");
+        this.price = Objects.requireNonNull(newPrice, "price must not be null");
     }
 
     public boolean isNew() {
-        return this.id == null;
-    }
-
-    public static String requireValidName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new DomainValidationException("name must not be null or blank");
-        }
-        if (name.length() > MAX_COFFEE_NAME_LENGTH) {
-            throw new DomainValidationException("name must not exceed " + MAX_COFFEE_NAME_LENGTH + " characters");
-        }
-        return name;
+        return id == null;
     }
 
     public @Nullable CoffeeId getId() {
@@ -68,20 +61,23 @@ public final class Coffee {
         return reviews;
     }
 
-    @Override
-    public String toString() {
-        return "Coffee[" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                ", reviews=" + reviews +
-                ']';
+    private static String requireValidName(@Nullable String name) {
+        if (name == null || name.isBlank()) {
+            throw new DomainValidationException("Coffee name must not be blank");
+        }
+        if (name.length() > MAX_NAME_LENGTH) {
+            throw new DomainValidationException(
+                    "Coffee name must not exceed %d characters".formatted(MAX_NAME_LENGTH));
+        }
+        return name;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        return o instanceof Coffee coffee && Objects.equals(id, coffee.id);
+    public boolean equals(@Nullable Object other) {
+        if (this == other) {
+            return true;
+        }
+        return other instanceof Coffee coffee && id != null && id.equals(coffee.id);
     }
 
     @Override
@@ -89,4 +85,8 @@ public final class Coffee {
         return id != null ? id.hashCode() : System.identityHashCode(this);
     }
 
+    @Override
+    public String toString() {
+        return "Coffee[id=" + id + ", name=" + name + ", price=" + price + "]";
+    }
 }

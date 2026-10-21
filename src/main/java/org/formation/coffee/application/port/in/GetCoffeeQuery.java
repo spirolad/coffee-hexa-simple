@@ -1,5 +1,6 @@
 package org.formation.coffee.application.port.in;
 
+import org.formation.coffee.domain.exception.CoffeeNotFoundException;
 import org.formation.coffee.domain.model.Coffee;
 import org.formation.coffee.domain.model.CoffeeId;
 

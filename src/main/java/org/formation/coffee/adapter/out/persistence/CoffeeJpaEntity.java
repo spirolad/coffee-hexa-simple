@@ -1,17 +1,22 @@
 package org.formation.coffee.adapter.out.persistence;
 
-import jakarta.annotation.Nullable;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
+import org.jspecify.annotations.Nullable;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @Entity
 @Table(name = "coffee")
-public class CoffeeJpaEntity {
+class CoffeeJpaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +34,7 @@ public class CoffeeJpaEntity {
 
     protected CoffeeJpaEntity() {}
 
-    @Nullable
-    public Long getId() {
+    public @Nullable Long getId() {
         return id;
     }
 
@@ -38,22 +42,19 @@ public class CoffeeJpaEntity {
         return name;
     }
 
-    public int getPrice() {
-        return price;
-    }
-
-    public List<ReviewJpaEntity> getReviews() {
-        return reviews;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getPrice() {
+        return price;
     }
 
     public void setPrice(int price) {
         this.price = price;
     }
 
-
-
+    public List<ReviewJpaEntity> getReviews() {
+        return reviews;
+    }
 }

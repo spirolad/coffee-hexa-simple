@@ -8,21 +8,19 @@ import org.formation.coffee.domain.model.ReviewId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Mapper
-public interface CoffeePersistenceMapper {
+interface CoffeePersistenceMapper {
 
     default Coffee toDomain(CoffeeJpaEntity entity) {
         return Coffee.reconstitute(
-                new CoffeeId(entity.getId()),
+                new CoffeeId(Objects.requireNonNull(entity.getId(), "a stored coffee has an id")),
                 entity.getName(),
                 new Price(entity.getPrice()),
-                toDomainReviews(entity.getReviews())
-        );
+                toDomainReviews(entity.getReviews()));
     }
 
     List<Review> toDomainReviews(List<ReviewJpaEntity> entities);
@@ -31,12 +29,11 @@ public interface CoffeePersistenceMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "reviews", ignore = true)
-    void updateEntity(Coffee coffee, @MappingTarget CoffeeJpaEntity entity);
-
+    CoffeeJpaEntity toNewEntity(Coffee coffee);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "reviews", ignore = true)
-    CoffeeJpaEntity toNewEntity(Coffee coffee);
+    void updateEntity(Coffee coffee, @MappingTarget CoffeeJpaEntity entity);
 
     default ReviewId toReviewId(Long id) {
         return new ReviewId(id);
@@ -45,5 +42,4 @@ public interface CoffeePersistenceMapper {
     default int toAmount(Price price) {
         return price.amount();
     }
-
 }

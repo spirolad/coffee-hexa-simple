@@ -1,14 +1,9 @@
 package org.formation.coffee.adapter.in.web.dto;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 
-import java.math.BigDecimal;
-
-public record UpdateCoffeeRequest(
-        @Nullable String name,
-        @Nullable Integer price
-) {
+/**
+ * Mise à jour partielle : un champ absent reste inchangé.
+ */
+public record UpdateCoffeeRequest(@Nullable String name, @Nullable Integer price) {
 }

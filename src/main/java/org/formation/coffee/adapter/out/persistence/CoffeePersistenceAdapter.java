@@ -2,6 +2,7 @@ package org.formation.coffee.adapter.out.persistence;
 
 import org.formation.coffee.application.port.out.LoadCoffeePort;
 import org.formation.coffee.application.port.out.SaveCoffeePort;
+import org.formation.coffee.domain.exception.CoffeeNotFoundException;
 import org.formation.coffee.domain.model.Coffee;
 import org.formation.coffee.domain.model.CoffeeId;
 import org.springframework.stereotype.Component;
@@ -10,26 +11,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class CoffeePersistenceAdapter implements LoadCoffeePort, SaveCoffeePort {
+class CoffeePersistenceAdapter implements LoadCoffeePort, SaveCoffeePort {
 
     private final CoffeeJpaRepository repository;
     private final CoffeePersistenceMapper mapper;
 
-    public CoffeePersistenceAdapter(CoffeeJpaRepository coffeeJpaRepository, CoffeePersistenceMapper mapper) {
-        this.repository = coffeeJpaRepository;
+    CoffeePersistenceAdapter(CoffeeJpaRepository repository, CoffeePersistenceMapper mapper) {
+        this.repository = repository;
         this.mapper = mapper;
-    }
-
-    @Override
-    public Coffee save(Coffee coffee) {
-        CoffeeId id = coffee.getId();
-        if (id == null) {
-            return mapper.toDomain(repository.save(mapper.toNewEntity(coffee)));
-        }
-        CoffeeJpaEntity entity = repository.findById(id.value())
-                .orElseThrow(() -> new IllegalArgumentException("Coffee with id " + id.value() + " not found"));
-        mapper.updateEntity(coffee, entity);
-        return mapper.toDomain(repository.save(entity));
     }
 
     @Override
@@ -38,7 +27,19 @@ public class CoffeePersistenceAdapter implements LoadCoffeePort, SaveCoffeePort 
     }
 
     @Override
-    public Optional<Coffee> findById(CoffeeId coffeeId) {
-        return repository.findWithReviewsById(coffeeId.value()).map(mapper::toDomain);
+    public Optional<Coffee> findById(CoffeeId id) {
+        return repository.findWithReviewsById(id.value()).map(mapper::toDomain);
+    }
+
+    @Override
+    public Coffee save(Coffee coffee) {
+        CoffeeId id = coffee.getId();
+        if (id == null) {
+            return mapper.toDomain(repository.save(mapper.toNewEntity(coffee)));
+        }
+        CoffeeJpaEntity managed = repository.findWithReviewsById(id.value())
+                .orElseThrow(() -> new CoffeeNotFoundException(id));
+        mapper.updateEntity(coffee, managed);
+        return mapper.toDomain(managed);
     }
 }
