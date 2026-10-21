@@ -1,0 +1,20 @@
+package org.formation.coffee.adapter.out.persistence;
+
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface CoffeeJpaRepository extends JpaRepository<CoffeeJpaEntity, Long> {
+
+    @EntityGraph(attributePaths = "reviews")
+    List<CoffeeJpaEntity> findAllByOrderByIdAsc();
+
+    @EntityGraph(attributePaths = "reviews")
+    Optional<CoffeeJpaEntity> findWithReviewsById(Long id);
+
+}
